@@ -13,6 +13,8 @@
             background-color: black;
             margin: 0;
             font-family: Arial, sans-serif;
+            color: lime;
+            text-align: center;
         }
 
         #gameContainer {
@@ -55,7 +57,7 @@
         }
 
         #inputField {
-            width: calc(10 * 50px + 9 * 5px + 4px);
+            width: calc(10 * 50px + 9 * 5px + 4px); /* Adjusting width to match the maze */
             padding: 10px;
             border: 2px solid green;
             background-color: black;
@@ -64,16 +66,55 @@
             text-align: left; /* Text aligns to the left */
             outline: none;
         }
+
+        #explanation {
+            display: none;
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+
+        #buttonContainer {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #lessonButton, #telegramButton {
+            margin: 10px;
+            padding: 10px 20px;
+            border: none;
+            background-color: lime;
+            color: black;
+            font-size: 1.2em;
+            cursor: pointer;
+        }
+
+        #lessonButton:hover, #telegramButton:hover {
+            background-color: green;
+        }
+
     </style>
 </head>
 <body>
     <div id="gameContainer">
         <div id="instructions">
             Используйте команды для перемещения шарика по лабиринту: <br>
-            moveUp(), moveDown(), moveLeft(), moveRight()
+            moveUp(n), moveDown(n), moveLeft(n), moveRight(n) <br>
+            (n - количество шагов)
         </div>
         <div id="mazeContainer"></div>
         <input type="text" id="inputField" placeholder="Введите команду здесь">
+    </div>
+
+    <div id="explanation">
+        Вы использовали функции для перемещения шарика по лабиринту! <br><br>
+        Функции помогают упрощать код, делая его более понятным и удобным для повторного использования. <br><br>
+        Узнайте больше о функциях, пройдя урок по кнопке ниже:
+    </div>
+
+    <div id="buttonContainer">
+        <button id="lessonButton" onclick="window.open('https://stepik.org/lesson/954612/step/1?unit=961048', '_blank')">Перейти к уроку</button>
+        <button id="telegramButton" onclick="window.open('https://t.me/webhackergame', '_blank')">Перейти в Telegram</button>
     </div>
 
     <script>
@@ -133,24 +174,38 @@
         function checkWin() {
             if (playerPosition.x === 9 && playerPosition.y === 9) {
                 alert('Поздравляем, вы прошли лабиринт!');
-                window.location.href = "https://t.me/webhackergame";
+                showExplanation();
             }
         }
 
-        function moveUp() {
-            movePlayer(playerPosition.x, playerPosition.y - 1);
+        function showExplanation() {
+            document.getElementById('gameContainer').style.display = 'none';
+            document.getElementById('explanation').style.display = 'block';
+            document.getElementById('buttonContainer').style.display = 'block';
         }
 
-        function moveDown() {
-            movePlayer(playerPosition.x, playerPosition.y + 1);
+        function moveUp(steps = 1) {
+            for (let i = 0; i < steps; i++) {
+                movePlayer(playerPosition.x, playerPosition.y - 1);
+            }
         }
 
-        function moveLeft() {
-            movePlayer(playerPosition.x - 1, playerPosition.y);
+        function moveDown(steps = 1) {
+            for (let i = 0; i < steps; i++) {
+                movePlayer(playerPosition.x, playerPosition.y + 1);
+            }
         }
 
-        function moveRight() {
-            movePlayer(playerPosition.x + 1, playerPosition.y);
+        function moveLeft(steps = 1) {
+            for (let i = 0; i < steps; i++) {
+                movePlayer(playerPosition.x - 1, playerPosition.y);
+            }
+        }
+
+        function moveRight(steps = 1) {
+            for (let i = 0; i < steps; i++) {
+                movePlayer(playerPosition.x + 1, playerPosition.y);
+            }
         }
 
         document.getElementById('inputField').addEventListener('keydown', function(event) {
@@ -158,22 +213,13 @@
                 const command = event.target.value.trim();
                 event.target.value = '';
 
-                switch (command) {
-                    case 'moveUp()':
-                        moveUp();
-                        break;
-                    case 'moveDown()':
-                        moveDown();
-                        break;
-                    case 'moveLeft()':
-                        moveLeft();
-                        break;
-                    case 'moveRight()':
-                        moveRight();
-                        break;
-                    default:
-                        alert('Неверная команда');
-                        break;
+                const match = command.match(/(moveUp|moveDown|moveLeft|moveRight)\((\d*)\)/);
+                if (match) {
+                    const direction = match[1];
+                    const steps = parseInt(match[2]) || 1;
+                    window[direction](steps);
+                } else {
+                    alert('Неверная команда');
                 }
             }
         });
@@ -183,4 +229,3 @@
     </script>
 </body>
 </html>
-
