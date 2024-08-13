@@ -79,7 +79,7 @@
             text-align: center;
         }
 
-        #lessonButton, #telegramButton {
+        #lessonButton, #telegramButton, #retryButton {
             margin: 10px;
             padding: 10px 20px;
             border: none;
@@ -89,7 +89,7 @@
             cursor: pointer;
         }
 
-        #lessonButton:hover, #telegramButton:hover {
+        #lessonButton:hover, #telegramButton:hover, #retryButton:hover {
             background-color: green;
         }
 
@@ -106,15 +106,12 @@
         <input type="text" id="inputField" placeholder="Введите команду здесь">
     </div>
 
-    <div id="explanation">
-        Вы использовали функции для перемещения шарика по лабиринту! <br><br>
-        Функции помогают упрощать код, делая его более понятным и удобным для повторного использования. <br><br>
-        Узнайте больше о функциях, пройдя урок по кнопке ниже:
-    </div>
+    <div id="explanation"></div>
 
     <div id="buttonContainer">
-        <button id="lessonButton" onclick="window.open('https://stepik.org/lesson/954612/step/1?unit=961048', '_blank')">Перейти к уроку</button>
-        <button id="telegramButton" onclick="window.open('https://t.me/webhackergame', '_blank')">Перейти в Telegram</button>
+        <button id="lessonButton" onclick="window.open('https://stepik.org/lesson/954612/step/1?unit=961048', '_blank')" style="display: none;">Перейти к уроку</button>
+        <button id="telegramButton" onclick="window.open('https://t.me/webhackergame', '_blank')" style="display: none;">Перейти в Telegram</button>
+        <button id="retryButton" onclick="resetGame()">Начать сначала</button>
     </div>
 
     <script>
@@ -156,7 +153,7 @@
 
         function movePlayer(newX, newY) {
             if (newX < 0 || newY < 0 || newX >= 10 || newY >= 10 || maze[newY][newX] === 1) {
-                alert('Игра окончена! Вы врезались в стену.');
+                showFailure();
                 return;
             }
 
@@ -180,8 +177,34 @@
 
         function showExplanation() {
             document.getElementById('gameContainer').style.display = 'none';
+            document.getElementById('explanation').innerHTML = `
+                Вы использовали функции для перемещения шарика по лабиринту! <br><br>
+                Функции помогают упрощать код, делая его более понятным и удобным для повторного использования. <br><br>
+                Узнайте больше о функциях, пройдя урок по кнопке ниже:
+            `;
             document.getElementById('explanation').style.display = 'block';
             document.getElementById('buttonContainer').style.display = 'block';
+            document.getElementById('lessonButton').style.display = 'inline-block';
+            document.getElementById('telegramButton').style.display = 'inline-block';
+        }
+
+        function showFailure() {
+            document.getElementById('gameContainer').style.display = 'none';
+            document.getElementById('explanation').innerHTML = 'Игра окончена! Вы врезались в стену.';
+            document.getElementById('explanation').style.display = 'block';
+            document.getElementById('retryButton').style.display = 'inline-block';
+            document.getElementById('buttonContainer').style.display = 'block';
+            document.getElementById('lessonButton').style.display = 'none';
+            document.getElementById('telegramButton').style.display = 'none';
+        }
+
+        function resetGame() {
+            playerPosition = { x: 0, y: 0 };
+            createMaze();
+            updatePlayerPosition();
+            document.getElementById('gameContainer').style.display = 'block';
+            document.getElementById('explanation').style.display = 'none';
+            document.getElementById('buttonContainer').style.display = 'none';
         }
 
         function moveUp(steps = 1) {
@@ -212,8 +235,7 @@
             if (event.key === 'Enter') {
                 const command = event.target.value.trim();
                 event.target.value = '';
-
-                const match = command.match(/(moveUp|moveDown|moveLeft|moveRight)\((\d*)\)/);
+                const match = command.match(/^(moveUp|moveDown|moveLeft|moveRight)\((\d*)\)/);
                 if (match) {
                     const direction = match[1];
                     const steps = parseInt(match[2]) || 1;
